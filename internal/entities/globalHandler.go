@@ -26,7 +26,6 @@ func CentralEchoErrorHandler(err error, c echo.Context) {
 	var message string
 	var errPayload any
 	runtimeEnv := os.Getenv("RUNTIME_ENV")
-	serviceName := os.Getenv("SERVICE_NAME")
 
 	code := http.StatusInternalServerError
 	message = http.StatusText(code)
@@ -37,12 +36,8 @@ func CentralEchoErrorHandler(err error, c echo.Context) {
 
 	// Add tracing attributes
 	span.SetAttributes(
-		attribute.String("request.method", c.Request().Method),
-		attribute.String("request.uri", c.Request().URL.RequestURI()),
 		attribute.String("request.id", requestID),
-		attribute.String("service.name", serviceName),
 		attribute.String("runtime.env", runtimeEnv),
-		attribute.String("error.message", err.Error()),
 	)
 	span.SetStatus(codes.Error, err.Error())
 
@@ -51,6 +46,7 @@ func CentralEchoErrorHandler(err error, c echo.Context) {
 	case HttpError:
 		zap.L().Error(
 			err.Error(),
+			zap.Any("extra-log", e.InLog),
 			zap.String("Caller", e.Caller),
 			zap.String("Request-id", requestID),
 			zap.String("Method", c.Request().Method),
@@ -58,8 +54,10 @@ func CentralEchoErrorHandler(err error, c echo.Context) {
 			zap.Int("Status", e.Code),
 		)
 
+		// include internal logs to span
+		addMapToSpan(span, e.InLog, "extra-log")
+
 		span.SetAttributes(
-			attribute.Int("error.status", e.Code),
 			attribute.String("error.caller", e.Caller),
 		)
 

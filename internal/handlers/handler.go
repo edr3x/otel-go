@@ -57,7 +57,10 @@ func getNameByIdQuery(ctx context.Context, id string) (string, error) {
 	}
 
 	if id == "222" {
-		return "", entities.ErrorBadRequest("cannot provide 222")
+		return "", entities.ErrorBadRequest("cannot provide this id", map[string]any{
+			"id":      id,
+			"context": "you can never provide 22222",
+		})
 	}
 
 	return "Hylos", nil
