@@ -1,0 +1,35 @@
+networks:
+  app:
+    external: true
+
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./config/grafana.ini:/etc/grafana/grafana.ini
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app
+  tempo:
+    image: grafana/tempo:latest
+    command: -config.file=/etc/tempo.yaml
+    volumes:
+      - ./config/tempo.yml:/etc/tempo.yaml
+      # - tempo_data:/tmp/tempo
+    networks:
+      - app
+    ports:
+      # - "14268:14268" # jaeger ingest
+      # - "3200:3200"   # tempo
+      # - "9095:9095"   # tempo grpc
+      # - "4317:4317"   # otlp grpc
+      - "4318:4318"   # otlp http
+
+volumes:
+  # tempo_data: {}
+  grafana_data: {}
