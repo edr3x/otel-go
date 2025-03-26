@@ -2,14 +2,16 @@ module github.com/edr3x/otel-go
 
 go 1.24.0
 
+replace github.com/edr3x/otel-go/pkg/entities => ../pkg/entities
+
+replace github.com/edr3x/otel-go/pkg/otelx => ../pkg/otelx
+
 require (
+	github.com/edr3x/otel-go/pkg/entities v0.0.0-00010101000000-000000000000
+	github.com/edr3x/otel-go/pkg/otelx v0.0.0-00010101000000-000000000000
 	github.com/labstack/echo/v4 v4.13.3
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.60.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.35.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.35.0
-	go.opentelemetry.io/otel/sdk v1.35.0
-	go.opentelemetry.io/otel/trace v1.35.0
 	go.uber.org/zap v1.27.0
 )
 
@@ -20,6 +22,10 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.35.0 // indirect
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.35.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.35.0 // indirect
+	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.33.0 // indirect
 	golang.org/x/time v0.10.0 // indirect

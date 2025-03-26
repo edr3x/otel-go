@@ -4,18 +4,19 @@ import (
 	"context"
 	"time"
 
-	"github.com/edr3x/otel-go/interfaces"
-	"github.com/edr3x/otel-go/internal/entities"
-	"github.com/edr3x/otel-go/otelx"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/attribute"
+
+	"github.com/edr3x/otel-go/pkg/entities"
+	"github.com/edr3x/otel-go/pkg/entities/responders"
+	"github.com/edr3x/otel-go/pkg/otelx"
 )
 
 type Handler struct {
-	res interfaces.Responders
+	res responders.Responders
 }
 
-func NewHandler(res interfaces.Responders) *Handler {
+func NewHandler(res responders.Responders) *Handler {
 	return &Handler{res: res}
 }
 
