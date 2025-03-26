@@ -11,10 +11,10 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/edr3x/otel-go/internal/handlers"
 	"github.com/edr3x/otel-go/pkg/entities"
 	"github.com/edr3x/otel-go/pkg/entities/responders"
 	"github.com/edr3x/otel-go/pkg/otelx"
+	"github.com/edr3x/otel-go/service-b/internal/handlers"
 )
 
 func init() {

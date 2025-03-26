@@ -1,4 +1,4 @@
-module github.com/edr3x/otel-go
+module github.com/edr3x/otel-go/service-a
 
 go 1.24.0
 

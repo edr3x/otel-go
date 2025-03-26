@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package otel_test_service;
+
+service AssetService {
+    rpc GetAssetById (GetAssetRequest) returns (GetAssetResponse);
+}
+
+message NoResponse{}
+
+message GetAssetRequest{
+    string id = 1;
+}
+
+message GetAssetResponse{
+    string id = 1; 
+    string key = 2;
+    string alt_text = 3;
+    string url = 4;
+}

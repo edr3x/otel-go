@@ -16,8 +16,16 @@ type GetPosts struct {
 }
 
 type GetPostPayload struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID    string       `json:"id"`
+	Title string       `json:"title"`
+	Asset AssetPayload `json:"asset"`
+}
+
+type AssetPayload struct {
+	ID      string `json:"id"`
+	Key     string `json:"key"`
+	AltText string `json:"alt_text"`
+	URL     string `json:"url"`
 }
 
 func GetUsersPosts(ctx context.Context, postid string) (*GetPostPayload, error) {

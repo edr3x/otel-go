@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/edr3x/otel-go/internal/services"
 	"github.com/edr3x/otel-go/pkg/entities"
 	"github.com/edr3x/otel-go/pkg/entities/responders"
 	"github.com/edr3x/otel-go/pkg/otelx"
+	"github.com/edr3x/otel-go/service-a/internal/services"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,7 +28,7 @@ func (h *Handler) Foo(c echo.Context) error {
 		return err
 	}
 
-	post, err := services.GetUsersPosts(ctx, "666")
+	post, err := services.GetUsersPosts(ctx, "666as")
 	if err != nil {
 		return entities.ErrorNotFound(err)
 	}

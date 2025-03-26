@@ -10,6 +10,9 @@ import (
 	"github.com/edr3x/otel-go/pkg/entities"
 	"github.com/edr3x/otel-go/pkg/entities/responders"
 	"github.com/edr3x/otel-go/pkg/otelx"
+
+	assetSvc "github.com/edr3x/otel-go/grpc-service/pkg/pb"
+	"github.com/edr3x/otel-go/grpc-service/pkg/pb/proto"
 )
 
 type Handler struct {
@@ -31,16 +34,10 @@ func (h *Handler) Foo(c echo.Context) error {
 
 	time.Sleep(1 * time.Second)
 
-	return h.res.JSON(c, struct {
-		Id    string `json:"id"`
-		Title string `json:"title"`
-	}{
-		Id:    id,
-		Title: name,
-	})
+	return h.res.JSON(c, name)
 }
 
-func getPost(ctx context.Context, id string) (string, error) {
+func getPost(ctx context.Context, id string) (*Post, error) {
 	ctx, span := otelx.StartSpan(ctx)
 	defer span.End()
 
@@ -49,18 +46,44 @@ func getPost(ctx context.Context, id string) (string, error) {
 	return getPostByIdQuery(ctx, id)
 }
 
-func getPostByIdQuery(ctx context.Context, id string) (string, error) {
+type Post struct {
+	Id    string                  `json:"id"`
+	Title string                  `json:"title"`
+	Asset *proto.GetAssetResponse `json:"asset"`
+}
+
+func getPostByIdQuery(ctx context.Context, id string) (*Post, error) {
 	_, span := otelx.StartSpan(ctx)
 	defer span.End()
 
-	if id == "1234" {
-		return "The Adventure time", nil
+	client, err := assetSvc.NewAssetClient()
+	if err != nil {
+		return nil, entities.ErrorInternal(err)
 	}
 
 	if id == "666" {
 		span.SetAttributes(attribute.String("id", "666"), attribute.String("extrainfo", "cannot find book of the beast"))
-		return "", entities.ErrorNotFound("Couldn't find this post")
+		return nil, entities.ErrorNotFound("Couldn't find this post")
 	}
 
-	return "A quick brown fox jumps over the lazy dog", nil
+	if id == "1234" {
+		return &Post{
+			Id:    id,
+			Title: "The Adventure time",
+			Asset: nil,
+		}, nil
+	}
+
+	assetId := "0195d2b8-bbbb-72a5-bcb1-27226d04b0c6"
+
+	asset, err := client.GetAssetById(ctx, &proto.GetAssetRequest{Id: assetId})
+	if err != nil {
+		return nil, entities.ErrorNotFound(err)
+	}
+
+	return &Post{
+		Id:    id,
+		Title: "A quick brown fox jumps over the lazy dog",
+		Asset: asset,
+	}, nil
 }
