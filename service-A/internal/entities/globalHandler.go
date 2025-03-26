@@ -46,16 +46,13 @@ func CentralEchoErrorHandler(err error, c echo.Context) {
 	case HttpError:
 		zap.L().Error(
 			err.Error(),
-			zap.Any("extra-log", e.InLog),
+			zap.Int("Status", e.Code),
 			zap.String("Caller", e.Caller),
 			zap.String("Request-id", requestID),
 			zap.String("Method", c.Request().Method),
 			zap.String("URI", c.Request().URL.RequestURI()),
-			zap.Int("Status", e.Code),
+			zap.String("Trace-id", span.SpanContext().TraceID().String()),
 		)
-
-		// include internal logs to span
-		addMapToSpan(span, e.InLog, "extra-log")
 
 		span.SetAttributes(
 			attribute.String("error.caller", e.Caller),
@@ -103,6 +100,7 @@ func CustomRequestLoggerConfig() echo.MiddlewareFunc {
 				zap.L().Info("request",
 					zap.String("URI", v.URI),
 					zap.Int("status", v.Status),
+					zap.String("Trace-id", trace.SpanFromContext(c.Request().Context()).SpanContext().TraceID().String()),
 				)
 			}
 			return nil

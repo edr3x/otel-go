@@ -36,8 +36,8 @@ func main() {
 	r.HTTPErrorHandler = entities.CentralEchoErrorHandler
 
 	r.Use(middleware.RequestID())
-	r.Use(entities.CustomRequestLoggerConfig())
 	r.Use(otelecho.Middleware(serviceName, otelecho.WithTracerProvider(tp))) // otelecho middleware
+	r.Use(entities.CustomRequestLoggerConfig())                              // must be after otel middleware to extract traceID
 
 	r.GET("/", func(c echo.Context) error {
 		return c.String(200, "hello there")

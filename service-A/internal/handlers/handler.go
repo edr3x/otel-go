@@ -6,6 +6,7 @@ import (
 
 	"github.com/edr3x/otel-go/interfaces"
 	"github.com/edr3x/otel-go/internal/entities"
+	"github.com/edr3x/otel-go/internal/services"
 	"github.com/edr3x/otel-go/otelx"
 	"github.com/labstack/echo/v4"
 )
@@ -27,14 +28,21 @@ func (h *Handler) Foo(c echo.Context) error {
 		return err
 	}
 
+	post, err := services.GetUsersPosts(ctx, "666")
+	if err != nil {
+		return entities.ErrorNotFound(err)
+	}
+
 	time.Sleep(1 * time.Second)
 
 	return h.res.JSON(c, struct {
-		Id   string `json:"id"`
-		Name string `json:"name"`
+		Id   string                  `json:"id"`
+		Name string                  `json:"name"`
+		Post services.GetPostPayload `json:"post"`
 	}{
 		Id:   id,
 		Name: name,
+		Post: *post,
 	})
 }
 
@@ -57,10 +65,7 @@ func getNameByIdQuery(ctx context.Context, id string) (string, error) {
 	}
 
 	if id == "222" {
-		return "", entities.ErrorBadRequest("cannot provide this id", map[string]any{
-			"id":      id,
-			"context": "you can never provide 22222",
-		})
+		return "", entities.ErrorBadRequest("cannot provide this id")
 	}
 
 	return "Hylos", nil
