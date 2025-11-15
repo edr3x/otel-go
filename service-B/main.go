@@ -23,20 +23,27 @@ func init() {
 
 func main() {
 	// for demo purpose set env
-	os.Setenv("RUNTIME_ENV", "development")
+	os.Setenv("ENV", "development")
+	os.Setenv("OTEL_ENABLE", "true")
 	os.Setenv("SERVICE_NAME", "Second test Service")
-	os.Setenv("OTLP_ENDPOINT", "localhost:4318")
+	os.Setenv("OTEL_COLLECTOR_ENDPOINT", "localhost:4317")
 
 	serviceName := os.Getenv("SERVICE_NAME")
 
-	tp := otelx.NewTraceProvider(serviceName)
-	defer func() { _ = tp.Shutdown(context.Background()) }()
+	ctx := context.Background()
+
+	tp, shutdown := otelx.NewTraceProvider(ctx, serviceName)
+	defer shutdown()
+
+	shutdownMeterProvider := otelx.NewMeterProvider(ctx, serviceName)
+	defer shutdownMeterProvider()
 
 	r := echo.New()
 	r.HTTPErrorHandler = entities.CentralEchoErrorHandler
 
 	r.Use(middleware.RequestID())
 	r.Use(otelecho.Middleware(serviceName, otelecho.WithTracerProvider(tp))) // otelecho middleware
+	r.Use(echo.WrapMiddleware(otelx.MetricsMiddleware))                      // otel metrics
 	r.Use(entities.CustomRequestLoggerConfig())                              // must be after otel middleware to extract traceID
 
 	r.GET("/", func(c echo.Context) error {

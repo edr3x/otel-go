@@ -28,7 +28,7 @@ func (h *Handler) Foo(c echo.Context) error {
 		return err
 	}
 
-	post, err := services.GetUsersPosts(ctx, "666as")
+	post, err := services.GetUsersPosts(ctx, id)
 	if err != nil {
 		return entities.ErrorNotFound(err)
 	}
@@ -36,11 +36,11 @@ func (h *Handler) Foo(c echo.Context) error {
 	time.Sleep(1 * time.Second)
 
 	return h.res.JSON(c, struct {
-		Id   string                  `json:"id"`
+		ID   string                  `json:"id"`
 		Name string                  `json:"name"`
 		Post services.GetPostPayload `json:"post"`
 	}{
-		Id:   id,
+		ID:   id,
 		Name: name,
 		Post: *post,
 	})
@@ -52,10 +52,10 @@ func getName(ctx context.Context, id string) (string, error) {
 
 	time.Sleep(2 * time.Second)
 
-	return getNameByIdQuery(ctx, id)
+	return getNameByIDQuery(ctx, id)
 }
 
-func getNameByIdQuery(ctx context.Context, id string) (string, error) {
+func getNameByIDQuery(ctx context.Context, id string) (string, error) {
 	_, span := otelx.StartSpan(ctx)
 	defer span.End()
 

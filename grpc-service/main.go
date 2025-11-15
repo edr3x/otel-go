@@ -34,13 +34,20 @@ func init() {
 }
 
 func main() {
+	os.Setenv("ENV", "development")
+	os.Setenv("OTEL_ENABLE", "true")
 	os.Setenv("SERVICE_NAME", "Grpc Test Service")
-	os.Setenv("OTLP_ENDPOINT", "localhost:4318")
+	os.Setenv("OTEL_COLLECTOR_ENDPOINT", "localhost:4317")
 
 	serviceName := os.Getenv("SERVICE_NAME")
 
-	tp := otelx.NewTraceProvider(serviceName)
-	defer func() { _ = tp.Shutdown(context.Background()) }()
+	ctx := context.Background()
+
+	tp, shutdown := otelx.NewTraceProvider(ctx, serviceName)
+	defer shutdown()
+
+	shutdownMeterProvider := otelx.NewMeterProvider(ctx, serviceName)
+	defer shutdownMeterProvider()
 
 	port := cmp.Or(os.Getenv("PORT"), ":50051")
 	lis, err := net.Listen("tcp", port)
@@ -56,6 +63,7 @@ func main() {
 		grpc.ChainUnaryInterceptor(
 			requestLoggerInterceptor,
 			recovery.UnaryServerInterceptor(recovery.WithRecoveryHandler(grpcPanicRecoveryHandler)),
+			otelx.UnaryServerMetricsInterceptor(), // otel metrics
 		),
 		grpc.StatsHandler(otelgrpc.NewServerHandler(otelgrpc.WithTracerProvider(tp))),
 	)

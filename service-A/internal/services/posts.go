@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
+	"github.com/edr3x/otel-go/pkg/otelx"
 )
 
 type GetPosts struct {
@@ -31,16 +29,12 @@ type AssetPayload struct {
 func GetUsersPosts(ctx context.Context, postid string) (*GetPostPayload, error) {
 	url := "http://localhost:8081/posts/" + postid
 
-	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
-
-	resp, err := client.Do(req)
+	resp, err := otelx.DoRequest(ctx, req)
 	if err != nil {
 		return nil, err
 	}

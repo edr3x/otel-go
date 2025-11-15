@@ -43,16 +43,16 @@ func getPost(ctx context.Context, id string) (*Post, error) {
 
 	time.Sleep(2 * time.Second)
 
-	return getPostByIdQuery(ctx, id)
+	return getPostByIDQuery(ctx, id)
 }
 
 type Post struct {
-	Id    string                  `json:"id"`
+	ID    string                  `json:"id"`
 	Title string                  `json:"title"`
 	Asset *proto.GetAssetResponse `json:"asset"`
 }
 
-func getPostByIdQuery(ctx context.Context, id string) (*Post, error) {
+func getPostByIDQuery(ctx context.Context, id string) (*Post, error) {
 	_, span := otelx.StartSpan(ctx)
 	defer span.End()
 
@@ -68,21 +68,19 @@ func getPostByIdQuery(ctx context.Context, id string) (*Post, error) {
 
 	if id == "1234" {
 		return &Post{
-			Id:    id,
+			ID:    id,
 			Title: "The Adventure time",
 			Asset: nil,
 		}, nil
 	}
 
-	assetId := "0195d2b8-bbbb-72a5-bcb1-27226d04b0c6"
-
-	asset, err := client.GetAssetById(ctx, &proto.GetAssetRequest{Id: assetId})
+	asset, err := client.GetAssetById(ctx, &proto.GetAssetRequest{Id: id})
 	if err != nil {
 		return nil, entities.ErrorNotFound(err)
 	}
 
 	return &Post{
-		Id:    id,
+		ID:    id,
 		Title: "A quick brown fox jumps over the lazy dog",
 		Asset: asset,
 	}, nil

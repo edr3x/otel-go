@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -17,20 +16,15 @@ type AssetServer struct {
 }
 
 func (s *AssetServer) GetAssetById(ctx context.Context, req *proto.GetAssetRequest) (*proto.GetAssetResponse, error) {
-	uid, err := uuid.Parse(req.Id)
+	dbres, err := getAssetQuery(ctx, req.Id)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	dbres, err := getAssetQuery(ctx, uid)
-	if err != nil {
-		return nil, status.Error(codes.NotFound, "asset not found")
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	res := &proto.GetAssetResponse{
-		Id:      uid.String(),
+		Id:      req.Id,
 		Key:     dbres.Key,
-		Url:     dbres.Url,
+		Url:     dbres.URL,
 		AltText: dbres.AltText,
 	}
 	return res, nil
@@ -38,11 +32,11 @@ func (s *AssetServer) GetAssetById(ctx context.Context, req *proto.GetAssetReque
 
 type assetRes struct {
 	Key     string
-	Url     string
+	URL     string
 	AltText string
 }
 
-func getAssetQuery(ctx context.Context, uid uuid.UUID) (assetRes, error) {
+func getAssetQuery(ctx context.Context, uid string) (assetRes, error) {
 	_, span := otelx.StartSpan(ctx)
 	defer span.End()
 
@@ -50,12 +44,12 @@ func getAssetQuery(ctx context.Context, uid uuid.UUID) (assetRes, error) {
 
 	res := assetRes{}
 
-	if uid.String() == "0195d2b8-bbbb-72a5-bcb1-27226d04b0c6" {
-		return res, status.Error(codes.AlreadyExists, "the provided uuid is already provided")
+	if uid == "9999" {
+		return res, status.Error(codes.InvalidArgument, "the provided uuid is invalid")
 	}
 
 	res.Key = "orange-cat.jpg"
-	res.Url = "https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg"
+	res.URL = "https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg"
 	res.AltText = "Orange Cat "
 
 	return res, nil
