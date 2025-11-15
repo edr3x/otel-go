@@ -1,6 +1,6 @@
 module github.com/edr3x/otel-go/pkg/entities
 
-go 1.24.0
+go 1.25
 
 require (
 	github.com/labstack/echo/v4 v4.13.3
